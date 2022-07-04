@@ -4,7 +4,6 @@ from pyexpat import features
 from pyrsistent import s
 import streamlit as st
 import pandas as pd
-from st_btn_select import st_btn_select
 import numpy as np;
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
