@@ -111,6 +111,8 @@ def lineal(datacsv):
 
         plt.scatter(X, Y)
         plt.plot(X, Y_pred, color='red')
+        plt.xlabel(optionA)
+        plt.ylabel(optionH)
         plt.savefig("graficaLineal.png")
         st.write("**Grafica**: ")
 
@@ -239,8 +241,6 @@ def polinomial(datacsv):
                 Xgrid = Xgrid.reshape(len(Xgrid),1)
                 plt.plot(Xgrid, linear_regressionP.predict(poly.fit_transform(Xgrid)),color='red')
             if(igrado == 1):
-                linear_regression = LinearRegression()
-                linear_regression.fit(X,Y)
                 plt.plot(X, Y_pred, color='red')
 
 
@@ -255,6 +255,32 @@ def polinomial(datacsv):
                 st.image("./graficaPoli.png")
             with colu3:
                 st.write("")
+
+            inter=linear_regressionP.intercept_
+            inter2="{0:.4f}".format(inter)
+            funcT = ""
+            conta = 1
+            for x in linear_regressionP.coef_:
+                c = "{0:.4f}".format(x)
+                print(x)
+                if(conta>1):
+                    if float(x) > 0:
+                        funcT += "+"+str(c)+"x^"+str(conta)
+                        conta += 1
+                    elif float(x)<0:
+                        funcT += str(c)+"x^"+str(conta)
+                        conta += 1
+                else:
+                    if float(x) > 0:
+                        funcT += "+"+str(c)+"x"
+                        conta += 1
+                    elif float(x)<0:
+                        funcT += str(c)+"x"
+                        conta += 1
+
+            st.latex(f'''y = {str(inter2)}  {funcT} ''')
+
+
 
             if pre != "":
                 titleInt = int(pre)
@@ -272,38 +298,55 @@ def polinomial(datacsv):
 def gaussiano(datacsv):
     features = []
     y=[]
+    featureEncoded = list()
+    noEncoded = list()
+    newFeatures=[]
+    le = preprocessing.LabelEncoder()
 
     for d in datacsv:
-        featuresT = tuple(datacsv[d])
+        featuresT = tuple(le.fit_transform(datacsv[d]))
         features.append(featuresT)
-    y = list(features.pop())
+        noEncoded.append(tuple(datacsv[d]))
+    y = list(le.fit_transform(features.pop()))
+    noEncoded.pop()
 
+    for i in range(len(features[0])):
+        for fila in features:
+            columna = fila[i]
+            newFeatures.append(columna)
+        featureEncoded.append(tuple(newFeatures))
+        newFeatures=[]
+            
     st.write('**Tuplas utilizadas**: ')
-    st.info(features)
+    st.info(noEncoded)
 
-    st.write('**Eje Y**: ')
+    st.write('**Tuplas encoded**: ')
+    st.info(featureEncoded)
+
+    st.write('**Class**: ')
     st.info(y)
 
     model = GaussianNB();
-    model.fit(features, y);
+    model.fit(featureEncoded, y);
 
     with st.sidebar.header('3. Insert the prediction data: '):
         pred = st.sidebar.text_input('Prediction data: ')
+        pred2 = pred.strip()
 
+    if pred != "":
+        predL = list()
+        for pr in pred2:
+            if pr != "," and pr != " " and pr != ", ":
+                predL.append(int(pr))
+        predict = model.predict([predL])
 
-    predL = list()
-    for pr in pred:
-        if pr != ",":
-            predL.append(int(pr))
-    predict = model.predict([predL])
-
-    st.markdown('**Prediction result**: ')
-    st.info(predict[0])
-
+        st.markdown('**Prediction result**: ')
+        st.info(predict[0])
+    else:
+        st.info('Awaiting for prediction value')
     
 
     
-
 
 
 

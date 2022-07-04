@@ -1,0 +1,6 @@
+streamlit==1.10.0
+pandas==1.4.3
+numpy==1.23.0
+matplotlib==3.5.2
+sklearn==0.0
+pyrsistent==0.18.1
