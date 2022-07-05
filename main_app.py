@@ -298,7 +298,7 @@ def gaussiano(datacsv):
                 if(d == option):
                     featuresT = tuple(le.fit_transform(datacsv[d]))
                     features.append(featuresT)
-                    noEncoded.append((datacsv[d]))
+                    noEncoded.append(datacsv[d].astype(str))
         
 
         for i in range(len(features[0])):
@@ -322,7 +322,7 @@ def gaussiano(datacsv):
         if ySelected != " ":
             y = list(le.fit_transform(datacsv[ySelected]))
             st.write('**Tuplas utilizadas**: ')
-            st.write(noEncoded)
+            # st.write(noEncoded)
             st.write(pd.DataFrame(noEncoded))
 
             st.write('**Tuplas encoded**: ')
@@ -370,7 +370,7 @@ def arbolG(datacsv):
                 if(d == option):
                     featuresT = tuple(le.fit_transform(datacsv[d]))
                     features.append(featuresT)
-                    noEncoded.append(datacsv[d])
+                    noEncoded.append(datacsv[d].astype(str))
 
         for i in range(len(features[0])):
             for fila in features:
@@ -394,8 +394,8 @@ def arbolG(datacsv):
         if ySelected != " ":
             y = list(le.fit_transform(datacsv[ySelected]))
             st.write('**Tuplas utilizadas**: ')
-            st.write(noEncoded)
-            # st.write(pd.DataFrame(noEncoded))
+            # st.write(noEncoded)
+            st.write(pd.DataFrame(noEncoded))
 
             st.write('**Encoded tuplas**: ')
             st.info(featureEncoded)
@@ -454,7 +454,7 @@ def neuronales(datacsv):
                 if(d == option):
                     featuresT = tuple(le.fit_transform(datacsv[d]))
                     features.append(featuresT)
-                    noEncoded.append(datacsv[d])
+                    noEncoded.append(datacsv[d].astype(str))
 
         for i in range(len(features[0])):
             for fila in features:
@@ -478,7 +478,7 @@ def neuronales(datacsv):
         if ySelected != " ":
             y = list(le.fit_transform(datacsv[ySelected]))
             st.write('**Tuplas utilizadas**: ')
-            st.write(noEncoded)
+            st.write(pd.DataFrame(noEncoded))
 
             st.write('**Tuplas encoded**: ')
             st.info(featureEncoded)
