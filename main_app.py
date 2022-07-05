@@ -326,7 +326,12 @@ def gaussiano(datacsv):
             st.write(pd.DataFrame(noEncoded))
 
             st.write('**Tuplas encoded**: ')
-            st.info(featureEncoded)
+            colu1, colu2 = st.columns(2)
+            with colu1:
+                st.info(featureEncoded)
+            with colu2:
+                st.write(pd.DataFrame(featureEncoded))
+            
 
             st.write('**Class**: ')
             st.info(y)
@@ -397,8 +402,12 @@ def arbolG(datacsv):
             # st.write(noEncoded)
             st.write(pd.DataFrame(noEncoded))
 
-            st.write('**Encoded tuplas**: ')
-            st.info(featureEncoded)
+            st.write('**Tuplas encoded**: ')
+            colu1, colu2 = st.columns(2)
+            with colu1:
+                st.info(featureEncoded)
+            with colu2:
+                st.write(pd.DataFrame(featureEncoded))
 
             st.write('**Class**: ')
             st.info(y)
@@ -481,7 +490,11 @@ def neuronales(datacsv):
             st.write(pd.DataFrame(noEncoded))
 
             st.write('**Tuplas encoded**: ')
-            st.info(featureEncoded)
+            colu1, colu2 = st.columns(2)
+            with colu1:
+                st.info(featureEncoded)
+            with colu2:
+                st.write(pd.DataFrame(featureEncoded))
 
             st.write('**Class**: ')
             st.info(y)
