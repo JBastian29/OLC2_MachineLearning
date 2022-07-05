@@ -20,10 +20,6 @@ from sklearn.neural_network import MLPClassifier
 
 
 
-
-#---------------------------------#
-# Page layout
-## Page expands to full width
 st.set_page_config(page_title='OLC2 Machine Learning App',
     layout='wide')
 
@@ -38,18 +34,14 @@ selected3 = option_menu(None, ["Home","R. lineal", "R. polinomial",  "C. Gaussia
         "nav-link-selected": {"background-color": "#01D063"},
     }
     )
-#---------------------------------#
 
-#---------------------------------#
+
 st.write("""
 # OLC2 Machine Learning App
 """)
 
-#---------------------------------#
 
 
-#---------------------------------#
-# Algorithms
 def lineal(datacsv): 
     encabezados = " "
     optionH = " "
@@ -523,7 +515,6 @@ def neuronales(datacsv):
         st.info('Awaiting for the columns')
 
 
-#---------------------------------#
     
 
 
