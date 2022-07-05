@@ -1,6 +1,7 @@
 from cmath import e
 from lib2to3.refactor import get_all_fix_names
 from pyexpat import features
+from pyparsing import empty
 from pyrsistent import s
 import streamlit as st
 import pandas as pd
@@ -14,6 +15,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from streamlit_option_menu import option_menu
 import pathlib
+from sklearn.neural_network import MLPClassifier
 
 
 
@@ -25,7 +27,8 @@ import pathlib
 st.set_page_config(page_title='OLC2 Machine Learning App',
     layout='wide')
 
-selected3 = option_menu(None, ["Home","Regre. lineal", "Regre. polinomial",  "Clasif. Gaussiano", 'Árb. decisión'], 
+
+selected3 = option_menu(None, ["Home","R. lineal", "R. polinomial",  "C. Gaussiano", "Árb. decisión", "Redes neuro."], 
     icons=['house'], 
     menu_icon="cast", default_index=0, orientation="horizontal",
     styles={
@@ -278,6 +281,7 @@ def polinomial(datacsv):
         st.info('Awaiting for X and Y axis')
 
 def gaussiano(datacsv):
+    encabezados = " "
     features = []
     y=[]
     featureEncoded = list()
@@ -285,108 +289,226 @@ def gaussiano(datacsv):
     newFeatures=[]
     le = preprocessing.LabelEncoder()
 
-    for d in datacsv:
-        featuresT = tuple(le.fit_transform(datacsv[d]))
-        features.append(featuresT)
-        noEncoded.append(tuple(datacsv[d]))
-    y = list(le.fit_transform(features.pop()))
-    noEncoded.pop()
+    optionMultiSelect = st.multiselect('Select the columns to use: ',datacsv.columns)
 
-    for i in range(len(features[0])):
-        for fila in features:
-            columna = fila[i]
-            newFeatures.append(columna)
-        featureEncoded.append(tuple(newFeatures))
-        newFeatures=[]
-            
-    st.write('**Tuplas utilizadas**: ')
-    st.info(noEncoded)
 
-    st.write('**Tuplas encoded**: ')
-    st.info(featureEncoded)
+    if(bool(optionMultiSelect)):
+        for option in optionMultiSelect:
+            for d in datacsv:
+                if(d == option):
+                    featuresT = tuple(le.fit_transform(datacsv[d]))
+                    features.append(featuresT)
+                    noEncoded.append((datacsv[d]))
+        
 
-    st.write('**Class**: ')
-    st.info(y)
+        for i in range(len(features[0])):
+            for fila in features:
+                columna = fila[i]
+                newFeatures.append(columna)
+            featureEncoded.append(tuple(newFeatures))
+            newFeatures=[]
 
-    model = GaussianNB();
-    model.fit(featureEncoded, y);
+        for d in datacsv:
+            encabezados = encabezados.strip() + d +','
+        encabezados = encabezados[:-1]
+        encabezados = encabezados.split(',')
+        encabezados.insert(0," ")
 
-    with st.sidebar.header('2. Insert the prediction data: '):
-        pred = st.sidebar.text_input('Prediction data: ')
-        pred2 = pred.strip()
+        ySelected = st.sidebar.selectbox(
+            'Choose Class data:',
+            (encabezados))
+        
 
-    if pred != "":
-        predL = list()
-        for pr in pred2:
-            if pr != "," and pr != " " and pr != ", ":
-                predL.append(int(pr))
-        predict = model.predict([predL])
+        if ySelected != " ":
+            y = list(le.fit_transform(datacsv[ySelected]))
+            st.write('**Tuplas utilizadas**: ')
+            st.write(noEncoded)
+            st.write(pd.DataFrame(noEncoded))
 
-        st.markdown('**Prediction result**: ')
-        st.info(predict[0])
+            st.write('**Tuplas encoded**: ')
+            st.info(featureEncoded)
+
+            st.write('**Class**: ')
+            st.info(y)
+
+            model = GaussianNB();
+            model.fit(featureEncoded, y);
+
+            with st.sidebar.header('2. Insert the prediction data: '):
+                pred = st.sidebar.text_input('Prediction data: ')
+                pred2 = pred.strip()
+
+            if pred != "":
+                predL = list()
+                for pr in pred2:
+                    if pr != "," and pr != " " and pr != ", ":
+                        predL.append(int(pr))
+                predict = model.predict([predL])
+
+                st.markdown('**Prediction result**: ')
+                st.info(predict[0])
+            else:
+                st.info('Awaiting for prediction value')
+        else:
+            st.info('Awaiting for Class data')
     else:
-        st.info('Awaiting for prediction value')
+        st.info('Awaiting for the columns')
 
 def arbolG(datacsv):
+    encabezados=""
     features = []
     y=[]
     featureEncoded = list()
     noEncoded = list()
     newFeatures=[]
     le = preprocessing.LabelEncoder()
+    optionMultiSelect = st.multiselect('Select the columns to use: ',datacsv.columns)
 
-    for d in datacsv:
-        featuresT = tuple(le.fit_transform(datacsv[d]))
-        features.append(featuresT)
-        noEncoded.append(tuple(datacsv[d]))
-    y = list(le.fit_transform(features.pop()))
-    noEncoded.pop()
+    if(bool(optionMultiSelect)):
+        for option in optionMultiSelect:
+            for d in datacsv:
+                if(d == option):
+                    featuresT = tuple(le.fit_transform(datacsv[d]))
+                    features.append(featuresT)
+                    noEncoded.append(datacsv[d])
 
-    for i in range(len(features[0])):
-        for fila in features:
-            columna = fila[i]
-            newFeatures.append(columna)
-        featureEncoded.append(tuple(newFeatures))
-        newFeatures=[]
-            
-    st.write('**Tuplas utilizadas**: ')
-    st.info(noEncoded)
+        for i in range(len(features[0])):
+            for fila in features:
+                columna = fila[i]
+                newFeatures.append(columna)
+            featureEncoded.append(tuple(newFeatures))
+            newFeatures=[]
 
-    st.write('**Encoded tuplas**: ')
-    st.info(featureEncoded)
 
-    st.write('**Class**: ')
-    st.info(y)
+        for d in datacsv:
+            encabezados = encabezados.strip() + d +','
+        encabezados = encabezados[:-1]
+        encabezados = encabezados.split(',')
+        encabezados.insert(0," ")
 
-    treeClass = DecisionTreeClassifier()
-    model = treeClass.fit(featureEncoded, y)
+        ySelected = st.sidebar.selectbox(
+            'Choose Class data:',
+            (encabezados))
+        
 
-    with st.sidebar.header('2. Insert the prediction data: '):
-        pred = st.sidebar.text_input('Prediction data: ')
-        pred2 = pred.strip()
+        if ySelected != " ":
+            y = list(le.fit_transform(datacsv[ySelected]))
+            st.write('**Tuplas utilizadas**: ')
+            st.write(noEncoded)
+            # st.write(pd.DataFrame(noEncoded))
 
-    if pred != "":
-        predL = list()
-        for pr in pred2:
-            if pr != "," and pr != " " and pr != ", ":
-                predL.append(int(pr))
-        predict = model.predict([predL])
+            st.write('**Encoded tuplas**: ')
+            st.info(featureEncoded)
 
-        st.markdown('**Prediction result**: ')
-        st.info(predict[0])
+            st.write('**Class**: ')
+            st.info(y)
 
-        figura = plt.figure()
-        plot_tree(model, filled=True)
-        st.write("**Arbol de decisión**: ")
-        colu1, colu2, colu3 = st.columns([2,10,1])
-        with colu1:
-            st.write("")
-        with colu2:
-            st.pyplot(figura)
-        with colu3:
-            st.write("")
+            treeClass = DecisionTreeClassifier()
+            model = treeClass.fit(featureEncoded, y)
+
+            with st.sidebar.header('2. Insert the prediction data: '):
+                pred = st.sidebar.text_input('Prediction data: ')
+                pred2 = pred.strip()
+
+            if pred != "":
+                predL = list()
+                for pr in pred2:
+                    if pr != "," and pr != " " and pr != ", ":
+                        predL.append(int(pr))
+                predict = model.predict([predL])
+
+                st.markdown('**Prediction result**: ')
+                st.info(predict[0])
+
+                figura = plt.figure()
+                plot_tree(model, filled=True)
+                st.write("**Arbol de decisión**: ")
+                colu1, colu2, colu3 = st.columns([2,10,1])
+                with colu1:
+                    st.write("")
+                with colu2:
+                    st.pyplot(figura)
+                with colu3:
+                    st.write("")
+            else:
+                st.info('Awaiting for prediction value')
+        else:
+            st.info('Awaiting for Class data')
     else:
-        st.info('Awaiting for prediction value')
+        st.info('Awaiting for the columns')
+
+def neuronales(datacsv):
+    encabezados=" "
+    features = []
+    y=[]
+    featureEncoded = list()
+    noEncoded = list()
+    newFeatures=[]
+    le = preprocessing.LabelEncoder()
+    optionMultiSelect = st.multiselect('Select the columns to use: ',datacsv.columns)
+
+
+    if(bool(optionMultiSelect)):
+        for option in optionMultiSelect:
+            for d in datacsv:
+                if(d == option):
+                    featuresT = tuple(le.fit_transform(datacsv[d]))
+                    features.append(featuresT)
+                    noEncoded.append(datacsv[d])
+
+        for i in range(len(features[0])):
+            for fila in features:
+                columna = fila[i]
+                newFeatures.append(columna)
+            featureEncoded.append(tuple(newFeatures))
+            newFeatures=[]
+
+
+        for d in datacsv:
+            encabezados = encabezados.strip() + d +','
+        encabezados = encabezados[:-1]
+        encabezados = encabezados.split(',')
+        encabezados.insert(0," ")
+
+        ySelected = st.sidebar.selectbox(
+            'Choose Class data:',
+            (encabezados))
+        
+
+        if ySelected != " ":
+            y = list(le.fit_transform(datacsv[ySelected]))
+            st.write('**Tuplas utilizadas**: ')
+            st.write(noEncoded)
+
+            st.write('**Tuplas encoded**: ')
+            st.info(featureEncoded)
+
+            st.write('**Class**: ')
+            st.info(y)
+
+            model=MLPClassifier(hidden_layer_sizes=(10,10,10), max_iter=500, alpha=0.0001,solver='adam', random_state=21,tol=0.000000001)
+            model.fit(featureEncoded, y)
+
+            with st.sidebar.header('2. Insert the prediction data: '):
+                pred = st.sidebar.text_input('Prediction data: ')
+                pred2 = pred.strip()
+
+            if pred != "":
+                predL = list()
+                for pr in pred2:
+                    if pr != "," and pr != " " and pr != ", ":
+                        predL.append(int(pr))
+                predict = model.predict([predL])
+
+                st.markdown('**Prediction result**: ')
+                st.info(predict[0])
+            else:
+                st.info('Awaiting for prediction value')
+        else:
+            st.info('Awaiting for Class data')
+    else:
+        st.info('Awaiting for the columns')
+
 
 #---------------------------------#
     
@@ -417,16 +539,17 @@ if archivoCargado is not None:
         df = pd.DataFrame(data)
         st.dataframe(df)
 
-
     if(selected3 != ""):
-        if(selected3 == "Regre. lineal"):
+        if(selected3 == "R. lineal"):
             lineal(data)
-        if(selected3 == "Regre. polinomial"):
+        if(selected3 == "R. polinomial"):
             polinomial(data)
-        if(selected3 == "Clasif. Gaussiano"):
+        if(selected3 == "C. Gaussiano"):
             gaussiano(data)
         if(selected3 == "Árb. decisión"):
             arbolG(data)
+        if(selected3 == "Redes neuro."):
+            neuronales(data)
     
     #grid_table = AgGrid(df,fit_columns_on_grid_load= True, theme='fresh')
     # st.write(grid_table)
